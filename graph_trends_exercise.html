@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Describing Graphs & Trends – Vocabulary Exercise</title>
+<title>Describing Graphs & Trends – R351 Intercultural Skills I</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -16,6 +16,7 @@
   }
   body { font-family: 'Figtree', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 2rem 1rem 4rem; }
   header { max-width: 760px; margin: 0 auto 2rem; border-bottom: 1.5px solid var(--border); padding-bottom: 1.25rem; }
+  .course-tag { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.3rem; }
   header h1 { font-family: 'DM Serif Display', serif; font-size: 1.9rem; font-weight: 400; margin-bottom: 0.35rem; }
   header p { font-size: 0.9rem; color: var(--muted); }
   .grid { max-width: 760px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 1rem; }
@@ -42,8 +43,9 @@
   #btn-check:hover { background: #174d8c; }
   #btn-reset { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
   #btn-reset:hover { background: var(--surface2); }
-  #btn-dl { background: var(--surface); color: var(--accent); border: 1px solid var(--accent); margin-left: auto; display: none; }
+  #btn-dl { background: var(--surface); color: var(--accent); border: 1px solid var(--accent); margin-left: auto; display: inline-block; }
   #btn-dl:hover { background: var(--accent-light); }
+  #btn-dl:disabled { opacity: 0.6; cursor: not-allowed; }
   .score-banner { max-width: 760px; margin: 1.25rem auto 0; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; display: none; align-items: center; gap: 1rem; flex-wrap: wrap; }
   .score-big { font-family: 'DM Serif Display', serif; font-size: 2.4rem; line-height: 1; }
   .score-sub { font-size: 0.88rem; color: var(--muted); }
@@ -53,6 +55,7 @@
 </head>
 <body>
 <header>
+  <div class="course-tag">R351 Intercultural Skills I</div>
   <h1>Describing Graphs &amp; Trends</h1>
   <p>Each graph matches <strong>two</strong> verbs from the word bank. Select both answers, then click <strong>Check answers</strong>.</p>
 </header>
@@ -67,16 +70,18 @@
 <div class="actions">
   <button id="btn-check">Check answers</button>
   <button id="btn-reset">Reset</button>
-  <button id="btn-dl">Download results</button>
+  <button id="btn-dl">⬇ Download results as PDF</button>
 </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 const NS = "http://www.w3.org/2000/svg";
 const W = 120, H = 82;
 
-function mkSVG() {
+function mkSVG(w, h) {
   const s = document.createElementNS(NS,"svg");
-  s.setAttribute("width",W); s.setAttribute("height",H);
-  s.setAttribute("viewBox","0 0 "+W+" "+H);
+  s.setAttribute("width", w||W); s.setAttribute("height", h||H);
+  s.setAttribute("viewBox","0 0 "+(w||W)+" "+(h||H));
   s.classList.add("mini");
   return s;
 }
@@ -97,7 +102,6 @@ function mkArrowMarker(s) {
 }
 
 function axes(s) {
-  // Y axis with arrowhead
   const ya = document.createElementNS(NS,"line");
   ya.setAttribute("x1","16"); ya.setAttribute("y1","8");
   ya.setAttribute("x2","16"); ya.setAttribute("y2",H-14);
@@ -106,7 +110,6 @@ function axes(s) {
   const yArr = document.createElementNS(NS,"polygon");
   yArr.setAttribute("points","16,6 12,14 20,14");
   yArr.setAttribute("fill","#333"); s.appendChild(yArr);
-  // X axis with arrowhead
   const xa = document.createElementNS(NS,"line");
   xa.setAttribute("x1","16"); xa.setAttribute("y1",H-14);
   xa.setAttribute("x2",W-8); xa.setAttribute("y2",H-14);
@@ -129,73 +132,28 @@ function redArrow(s, x1,y1,x2,y2) {
 }
 
 function redCurve(s, pts, endArrow) {
-  if (endArrow) {
-    const id = mkArrowMarker(s);
-    const pl = document.createElementNS(NS,"polyline");
-    pl.setAttribute("points", pts.map(p=>p[0]+","+p[1]).join(" "));
-    pl.setAttribute("fill","none"); pl.setAttribute("stroke","#C0382B");
-    pl.setAttribute("stroke-width","3"); pl.setAttribute("stroke-linejoin","round");
-    pl.setAttribute("stroke-linecap","round");
-    pl.setAttribute("marker-end","url(#"+id+")");
-    s.appendChild(pl);
-  } else {
-    const pl = document.createElementNS(NS,"polyline");
-    pl.setAttribute("points", pts.map(p=>p[0]+","+p[1]).join(" "));
-    pl.setAttribute("fill","none"); pl.setAttribute("stroke","#C0382B");
-    pl.setAttribute("stroke-width","3"); pl.setAttribute("stroke-linejoin","round");
-    pl.setAttribute("stroke-linecap","round");
-    s.appendChild(pl);
-  }
+  const id = endArrow ? mkArrowMarker(s) : null;
+  const pl = document.createElementNS(NS,"polyline");
+  pl.setAttribute("points", pts.map(p=>p[0]+","+p[1]).join(" "));
+  pl.setAttribute("fill","none"); pl.setAttribute("stroke","#C0382B");
+  pl.setAttribute("stroke-width","3"); pl.setAttribute("stroke-linejoin","round");
+  pl.setAttribute("stroke-linecap","round");
+  if (id) pl.setAttribute("marker-end","url(#"+id+")");
+  s.appendChild(pl);
 }
 
-// Graph 1: steady moderate rise (arrow ~25deg)
 function g1(s) { axes(s); redArrow(s, 24,60, 100,34); }
-
-// Graph 2: steady moderate fall (arrow ~25deg downward)
 function g2(s) { axes(s); redArrow(s, 24,32, 100,58); }
-
-// Graph 3: steep rise (arrow ~65deg upward)
 function g3(s) { axes(s); redArrow(s, 36,64, 72,16); }
-
-// Graph 4: steep fall (arrow ~65deg downward)
 function g4(s) { axes(s); redArrow(s, 32,16, 68,64); }
-
-// Graph 5: smooth rise to a peak, then fall back down
-function g5(s) {
-  axes(s);
-  redCurve(s, [
-    [22,64],[32,54],[44,36],[56,20],[68,30],[78,46],[92,60]
-  ], false);
-}
-
-// Graph 6: starts slow/flat at bottom, curves sharply upward then levels off at top
-function g6(s) {
-  axes(s);
-  redCurve(s, [
-    [22,62],[30,60],[40,54],[50,42],[60,28],[68,18],[76,14],[86,13],[98,13],[108,13]
-  ], true);
-}
-
-// Graph 7: starts mid-level, dips into a trough, then recovers upward (pick up shape)
-function g7(s) {
-  axes(s);
-  redCurve(s, [
-    [22,34],[32,42],[44,54],[56,60],[66,52],[76,40],[86,30],[98,26]
-  ], true);
-}
-
-// Graph 8: rapid tight oscillations (many waves) across the graph
+function g5(s) { axes(s); redCurve(s,[[22,64],[32,54],[44,36],[56,20],[68,30],[78,46],[92,60]],false); }
+function g6(s) { axes(s); redCurve(s,[[22,62],[30,60],[40,54],[50,42],[60,28],[68,18],[76,14],[86,13],[98,13],[108,13]],true); }
+function g7(s) { axes(s); redCurve(s,[[22,34],[32,42],[44,54],[56,60],[66,52],[76,40],[86,30],[98,26]],true); }
 function g8(s) {
   axes(s);
   const pts = [];
-  for (let i = 0; i <= 20; i++) {
-    const x = 22 + i * 4.2;
-    const mid = 44;
-    const amp = 14;
-    const y = mid + (i % 2 === 0 ? -amp : amp);
-    pts.push([x, y]);
-  }
-  redCurve(s, pts, true);
+  for (let i=0;i<=20;i++) { const x=22+i*4.2; pts.push([x, 44+(i%2===0?-14:14)]); }
+  redCurve(s,pts,true);
 }
 
 const items = [
@@ -233,6 +191,7 @@ items.forEach(item => {
   const card = document.createElement("div");
   card.classList.add("card");
   card.dataset.answers = JSON.stringify(item.answers);
+  card.dataset.num = item.num;
 
   const gw = document.createElement("div");
   gw.classList.add("graph-wrap");
@@ -246,30 +205,26 @@ items.forEach(item => {
 
   const selWrap = document.createElement("div");
   selWrap.classList.add("selects");
-
-  for (let i = 0; i < 2; i++) {
+  for (let i=0;i<2;i++) {
     const row = document.createElement("div");
     row.classList.add("sel-row");
     const lbl = document.createElement("span");
     lbl.classList.add("sel-label");
-    lbl.textContent = (i+1) + ".";
+    lbl.textContent = (i+1)+".";
     row.appendChild(lbl);
     row.appendChild(mkSelect());
     selWrap.appendChild(row);
   }
 
-  const fb = document.createElement("div");
-  fb.classList.add("feedback");
-  const rv = document.createElement("div");
-  rv.classList.add("reveal");
+  const fb = document.createElement("div"); fb.classList.add("feedback");
+  const rv = document.createElement("div"); rv.classList.add("reveal");
 
-  card.appendChild(gw);
-  card.appendChild(num);
-  card.appendChild(selWrap);
-  card.appendChild(fb);
-  card.appendChild(rv);
+  card.appendChild(gw); card.appendChild(num); card.appendChild(selWrap);
+  card.appendChild(fb); card.appendChild(rv);
   grid.appendChild(card);
 });
+
+let lastResults = null;
 
 document.getElementById("btn-check").addEventListener("click",()=>{
   let correct=0;
@@ -286,36 +241,27 @@ document.getElementById("btn-check").addEventListener("click",()=>{
     card.classList.remove("correct","wrong");
     fb.className="feedback"; fb.textContent=""; rv.textContent="";
 
-    // Check both chosen values are in the answers set, and they're different
-    const answerSet = new Set(answers);
-    const ok = chosen[0] && chosen[1] &&
-               chosen[0] !== chosen[1] &&
-               answerSet.has(chosen[0]) &&
-               answerSet.has(chosen[1]);
+    const answerSet=new Set(answers);
+    const ok=chosen[0]&&chosen[1]&&chosen[0]!==chosen[1]&&answerSet.has(chosen[0])&&answerSet.has(chosen[1]);
 
     results.push({num:i+1, answers, chosen, ok});
 
     if(ok){
-      correct++;
-      card.classList.add("correct");
+      correct++; card.classList.add("correct");
       fb.classList.add("ok"); fb.textContent="Correct";
     } else {
-      card.classList.add("wrong");
-      fb.classList.add("no");
-      const missing = chosen[0] && chosen[1] ? "Incorrect" : "Incomplete";
-      fb.textContent = missing;
-      rv.textContent = "Answers: " + answers.join(" & ");
+      card.classList.add("wrong"); fb.classList.add("no");
+      fb.textContent=(chosen[0]&&chosen[1])?"Incorrect":"Incomplete";
+      rv.textContent="Answers: "+answers.join(" & ");
     }
   });
 
   const total=items.length;
-  const banner=document.getElementById("banner");
-  banner.style.display="flex";
+  document.getElementById("banner").style.display="flex";
   document.getElementById("score").textContent=correct+"/"+total;
   document.getElementById("bar").style.width=Math.round(correct/total*100)+"%";
-  const dl=document.getElementById("btn-dl");
-  dl.style.display="inline-block";
-  dl._results=results; dl._correct=correct; dl._total=total;
+
+  lastResults={results, correct, total};
 });
 
 document.getElementById("btn-reset").addEventListener("click",()=>{
@@ -323,24 +269,197 @@ document.getElementById("btn-reset").addEventListener("click",()=>{
     c.classList.remove("correct","wrong");
     c.querySelectorAll("select").forEach(s=>s.value="");
     const fb=c.querySelector(".feedback");
-    fb.className="feedback";fb.textContent="";
+    fb.className="feedback"; fb.textContent="";
     c.querySelector(".reveal").textContent="";
   });
   document.getElementById("banner").style.display="none";
-  document.getElementById("btn-dl").style.display="none";
+  lastResults=null;
 });
 
-document.getElementById("btn-dl").addEventListener("click",function(){
-  const now=new Date().toLocaleString();
-  const pct=Math.round(this._correct/this._total*100);
-  const rows=this._results.map(r=>
-    "Graph "+r.num+"\t"+r.answers.join(" & ")+"\t"+
-    (r.chosen[0]||"(blank)")+" & "+(r.chosen[1]||"(blank)")+"\t"+(r.ok?"Correct":"Incorrect")
-  ).join("\n");
-  const txt="Describing Graphs & Trends - Exercise Results\nDate: "+now+"\nScore: "+this._correct+"/"+this._total+" ("+pct+"%)\n\nGraph\tExpected\tYour answers\tResult\n"+rows;
-  const a=document.createElement("a");
-  a.href=URL.createObjectURL(new Blob([txt],{type:"text/plain"}));
-  a.download="graph_trends_results.txt"; a.click();
+// Convert an SVG element to a data URL via canvas
+function svgToDataURL(drawFn, svgW, svgH, scale) {
+  scale = scale || 3;
+  const svg = mkSVG(svgW, svgH);
+  // white background rect
+  const bg = document.createElementNS(NS,"rect");
+  bg.setAttribute("width",svgW); bg.setAttribute("height",svgH);
+  bg.setAttribute("fill","#F0EFE9"); svg.insertBefore(bg, svg.firstChild);
+  drawFn(svg);
+
+  const serializer = new XMLSerializer();
+  const svgStr = serializer.serializeToString(svg);
+  const svgBlob = new Blob([svgStr], {type:"image/svg+xml;charset=utf-8"});
+  const url = URL.createObjectURL(svgBlob);
+
+  return new Promise((resolve)=>{
+    const img = new Image();
+    img.onload = ()=>{
+      const canvas = document.createElement("canvas");
+      canvas.width = svgW * scale;
+      canvas.height = svgH * scale;
+      const ctx = canvas.getContext("2d");
+      ctx.scale(scale, scale);
+      ctx.drawImage(img, 0, 0);
+      URL.revokeObjectURL(url);
+      resolve(canvas.toDataURL("image/png"));
+    };
+    img.src = url;
+  });
+}
+
+document.getElementById("btn-dl").addEventListener("click", async function() {
+  const btn = this;
+  btn.disabled = true;
+  btn.textContent = "Generating PDF…";
+
+  // Build results from current selections if answers haven't been checked yet
+  if (!lastResults) {
+    const cards = document.querySelectorAll(".card");
+    const results = [];
+    cards.forEach((card, i) => {
+      const sels = card.querySelectorAll("select");
+      const answers = JSON.parse(card.dataset.answers);
+      const chosen = [sels[0].value, sels[1].value];
+      const answerSet = new Set(answers);
+      const ok = chosen[0] && chosen[1] && chosen[0] !== chosen[1] && answerSet.has(chosen[0]) && answerSet.has(chosen[1]);
+      results.push({num: i+1, answers, chosen, ok});
+    });
+    const correct = results.filter(r => r.ok).length;
+    lastResults = {results, correct, total: items.length, unchecked: true};
+  }
+
+  try {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation:"portrait", unit:"mm", format:"a4" });
+
+    const pageW = 210, pageH = 297;
+    const margin = 18;
+    const contentW = pageW - margin * 2;
+    const now = new Date().toLocaleString();
+    const pct = Math.round(lastResults.correct / lastResults.total * 100);
+
+    // ── Header ──
+    doc.setFillColor(29, 95, 168);
+    doc.rect(0, 0, pageW, 28, "F");
+    doc.setTextColor(255,255,255);
+    doc.setFont("helvetica","bold");
+    doc.setFontSize(9);
+    doc.text("R351 INTERCULTURAL SKILLS I", margin, 10);
+    doc.setFontSize(16);
+    doc.text("Describing Graphs & Trends", margin, 20);
+
+    // ── Meta line ──
+    doc.setTextColor(80,80,80);
+    doc.setFont("helvetica","normal");
+    doc.setFontSize(8.5);
+    doc.text("Date: "+now, margin, 35);
+    doc.text("Score: "+lastResults.correct+"/"+lastResults.total+" ("+pct+"%)", pageW-margin, 35, {align:"right"});
+
+    // ── Score bar ──
+    doc.setDrawColor(220,217,210);
+    doc.setFillColor(220,217,210);
+    doc.roundedRect(margin, 39, contentW, 5, 2, 2, "F");
+    const barColor = pct >= 80 ? [42,122,75] : pct >= 50 ? [29,95,168] : [176,48,48];
+    doc.setFillColor(...barColor);
+    doc.roundedRect(margin, 39, contentW * pct/100, 5, 2, 2, "F");
+
+    // ── Grid of results: 2 columns ──
+    const cols = 2;
+    const cardW = (contentW - 8) / cols;
+    const svgDisplayW = 38;
+    const svgDisplayH = 26;
+    const cardH = 54;
+    const startY = 52;
+    let y = startY;
+
+    for (let i = 0; i < lastResults.results.length; i++) {
+      const col = i % cols;
+      const row = Math.floor(i / cols);
+      const x = margin + col * (cardW + 8);
+      const cy = y + row * (cardH + 6);
+
+      // Check if we need a new page
+      if (cy + cardH > pageH - margin) {
+        doc.addPage();
+        y = margin;
+      }
+      const cardY = (cy + row * 0 > pageH - margin - cardH) ? margin : cy;
+
+      const r = lastResults.results[i];
+      const isOk = r.ok;
+
+      // Card background
+      doc.setFillColor(isOk ? 234 : 250, isOk ? 245 : 234, isOk ? 238 : 234);
+      doc.setDrawColor(isOk ? 42 : 176, isOk ? 122 : 48, isOk ? 75 : 48);
+      doc.setLineWidth(0.4);
+      doc.roundedRect(x, cardY, cardW, cardH, 3, 3, "FD");
+
+      // Graph number label
+      doc.setFont("helvetica","bold");
+      doc.setFontSize(7);
+      doc.setTextColor(isOk ? 42 : 176, isOk ? 122 : 48, isOk ? 75 : 48);
+      doc.text("GRAPH "+r.num, x+4, cardY+6);
+
+      // Result badge
+      doc.setFontSize(7);
+      doc.text(isOk ? "✓ CORRECT" : "✗ INCORRECT", x+cardW-4, cardY+6, {align:"right"});
+
+      // Draw SVG graph
+      const drawFn = items[i].draw;
+      const imgData = await svgToDataURL(drawFn, W, H, 3);
+      doc.addImage(imgData, "PNG", x+4, cardY+9, svgDisplayW, svgDisplayH);
+
+      // Text column next to graph
+      const tx = x + svgDisplayW + 8;
+      const tw = cardW - svgDisplayW - 12;
+
+      doc.setFont("helvetica","bold");
+      doc.setFontSize(7.5);
+      doc.setTextColor(60,60,60);
+      doc.text("Correct answers:", tx, cardY+14);
+
+      doc.setFont("helvetica","normal");
+      doc.setFontSize(8);
+      doc.setTextColor(42,122,75);
+      doc.text(r.answers[0], tx, cardY+20);
+      doc.text(r.answers[1], tx, cardY+26);
+
+      doc.setFont("helvetica","bold");
+      doc.setFontSize(7.5);
+      doc.setTextColor(60,60,60);
+      doc.text("Your answers:", tx, cardY+34);
+
+      doc.setFont("helvetica","normal");
+      doc.setFontSize(8);
+      const c1 = r.chosen[0]||"(blank)";
+      const c2 = r.chosen[1]||"(blank)";
+      const ok1 = r.answers.includes(r.chosen[0]);
+      const ok2 = r.answers.includes(r.chosen[1]);
+      doc.setTextColor(ok1 ? 42 : 176, ok1 ? 122 : 48, ok1 ? 75 : 48);
+      doc.text(c1, tx, cardY+40);
+      doc.setTextColor(ok2 ? 42 : 176, ok2 ? 122 : 48, ok2 ? 75 : 48);
+      doc.text(c2, tx, cardY+46);
+    }
+
+    // ── Footer ──
+    const totalRows = Math.ceil(lastResults.results.length / cols);
+    const footerY = Math.min(startY + totalRows * (cardH + 6) + 8, pageH - 12);
+    doc.setFont("helvetica","italic");
+    doc.setFontSize(8);
+    doc.setTextColor(160,160,160);
+    doc.text("R351 Intercultural Skills I – Describing Graphs & Trends", margin, footerY);
+    doc.text("Page 1", pageW - margin, footerY, {align:"right"});
+
+    doc.save("R351_graphs_trends_results.pdf");
+    // Clear temporary results so next download reflects latest selections
+    if (lastResults && lastResults.unchecked) lastResults = null;
+  } catch(e) {
+    console.error(e);
+    alert("PDF generation failed. Please try again.");
+  }
+
+  btn.disabled = false;
+  btn.textContent = "⬇ Download results as PDF";
 });
 </script>
 </body>
