@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Describing Graphs & Trends – Vocabulary Exercise</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #F7F6F1; --surface: #FFFFFF; --surface2: #F0EFE9;
+    --border: #D8D5CC; --text: #1A1917; --muted: #6B6A65;
+    --accent: #1D5FA8; --accent-light: #E3EEF9;
+    --correct: #2A7A4B; --correct-bg: #EAF5EE;
+    --wrong: #B03030; --wrong-bg: #FAEAEA; --radius: 10px;
+  }
+  body { font-family: 'Figtree', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 2rem 1rem 4rem; }
+  header { max-width: 760px; margin: 0 auto 2rem; border-bottom: 1.5px solid var(--border); padding-bottom: 1.25rem; }
+  header h1 { font-family: 'DM Serif Display', serif; font-size: 1.9rem; font-weight: 400; margin-bottom: 0.35rem; }
+  header p { font-size: 0.9rem; color: var(--muted); }
+  .grid { max-width: 760px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 1rem; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; display: flex; flex-direction: column; gap: 0.7rem; transition: border-color 0.2s, background 0.2s; }
+  .card.correct { border-color: var(--correct); background: var(--correct-bg); }
+  .card.wrong { border-color: var(--wrong); background: var(--wrong-bg); }
+  .graph-wrap { background: var(--surface2); border-radius: 6px; padding: 0.5rem; display: flex; align-items: center; justify-content: center; }
+  svg.mini { display: block; }
+  .card-num { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .selects { display: flex; flex-direction: column; gap: 0.4rem; }
+  .sel-row { display: flex; align-items: center; gap: 0.5rem; }
+  .sel-label { font-size: 0.75rem; color: var(--muted); font-weight: 500; min-width: 14px; }
+  select { width: 100%; font-family: 'Figtree', sans-serif; font-size: 0.88rem; padding: 0.45rem 2rem 0.45rem 0.7rem; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text); cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236B6A65' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; }
+  select:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .feedback { font-size: 0.82rem; font-weight: 500; min-height: 1.1em; }
+  .feedback.ok { color: var(--correct); }
+  .feedback.no { color: var(--wrong); }
+  .reveal { font-size: 0.82rem; color: var(--correct); display: none; font-style: italic; }
+  .card.wrong .reveal { display: block; }
+  .actions { max-width: 760px; margin: 1.5rem auto 0; display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; }
+  button { font-family: 'Figtree', sans-serif; font-size: 0.9rem; font-weight: 500; padding: 0.6rem 1.3rem; border-radius: 7px; cursor: pointer; transition: background 0.15s, transform 0.1s; }
+  button:active { transform: scale(0.97); }
+  #btn-check { background: var(--accent); color: #fff; border: none; }
+  #btn-check:hover { background: #174d8c; }
+  #btn-reset { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+  #btn-reset:hover { background: var(--surface2); }
+  #btn-dl { background: var(--surface); color: var(--accent); border: 1px solid var(--accent); margin-left: auto; display: none; }
+  #btn-dl:hover { background: var(--accent-light); }
+  .score-banner { max-width: 760px; margin: 1.25rem auto 0; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; display: none; align-items: center; gap: 1rem; flex-wrap: wrap; }
+  .score-big { font-family: 'DM Serif Display', serif; font-size: 2.4rem; line-height: 1; }
+  .score-sub { font-size: 0.88rem; color: var(--muted); }
+  .bar-wrap { flex: 1; min-width: 120px; height: 8px; background: var(--surface2); border-radius: 99px; overflow: hidden; }
+  .bar { height: 100%; border-radius: 99px; background: var(--accent); transition: width 0.5s ease; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Describing Graphs &amp; Trends</h1>
+  <p>Each graph matches <strong>two</strong> verbs from the word bank. Select both answers, then click <strong>Check answers</strong>.</p>
+</header>
+<div class="grid" id="grid"></div>
+<div class="score-banner" id="banner">
+  <div>
+    <div class="score-big" id="score">-/8</div>
+    <div class="score-sub">correct answers</div>
+  </div>
+  <div class="bar-wrap"><div class="bar" id="bar" style="width:0%"></div></div>
+</div>
+<div class="actions">
+  <button id="btn-check">Check answers</button>
+  <button id="btn-reset">Reset</button>
+  <button id="btn-dl">Download results</button>
+</div>
+<script>
+const NS = "http://www.w3.org/2000/svg";
+const W = 120, H = 82;
+
+function mkSVG() {
+  const s = document.createElementNS(NS,"svg");
+  s.setAttribute("width",W); s.setAttribute("height",H);
+  s.setAttribute("viewBox","0 0 "+W+" "+H);
+  s.classList.add("mini");
+  return s;
+}
+
+let arrowId = 0;
+function mkArrowMarker(s) {
+  const id = "ah"+(arrowId++);
+  const defs = document.createElementNS(NS,"defs");
+  const m = document.createElementNS(NS,"marker");
+  m.setAttribute("id",id); m.setAttribute("markerWidth","8");
+  m.setAttribute("markerHeight","8"); m.setAttribute("refX","6");
+  m.setAttribute("refY","3"); m.setAttribute("orient","auto");
+  const p = document.createElementNS(NS,"path");
+  p.setAttribute("d","M0,0 L0,6 L7,3 z");
+  p.setAttribute("fill","#C0382B");
+  m.appendChild(p); defs.appendChild(m); s.appendChild(defs);
+  return id;
+}
+
+function axes(s) {
+  // Y axis with arrowhead
+  const ya = document.createElementNS(NS,"line");
+  ya.setAttribute("x1","16"); ya.setAttribute("y1","8");
+  ya.setAttribute("x2","16"); ya.setAttribute("y2",H-14);
+  ya.setAttribute("stroke","#333"); ya.setAttribute("stroke-width","2");
+  s.appendChild(ya);
+  const yArr = document.createElementNS(NS,"polygon");
+  yArr.setAttribute("points","16,6 12,14 20,14");
+  yArr.setAttribute("fill","#333"); s.appendChild(yArr);
+  // X axis with arrowhead
+  const xa = document.createElementNS(NS,"line");
+  xa.setAttribute("x1","16"); xa.setAttribute("y1",H-14);
+  xa.setAttribute("x2",W-8); xa.setAttribute("y2",H-14);
+  xa.setAttribute("stroke","#333"); xa.setAttribute("stroke-width","2");
+  s.appendChild(xa);
+  const xArr = document.createElementNS(NS,"polygon");
+  xArr.setAttribute("points",(W-6)+","+(H-14)+" "+(W-14)+","+(H-18)+" "+(W-14)+","+(H-10));
+  xArr.setAttribute("fill","#333"); s.appendChild(xArr);
+}
+
+function redArrow(s, x1,y1,x2,y2) {
+  const id = mkArrowMarker(s);
+  const l = document.createElementNS(NS,"line");
+  l.setAttribute("x1",x1); l.setAttribute("y1",y1);
+  l.setAttribute("x2",x2); l.setAttribute("y2",y2);
+  l.setAttribute("stroke","#C0382B"); l.setAttribute("stroke-width","3");
+  l.setAttribute("stroke-linecap","round");
+  l.setAttribute("marker-end","url(#"+id+")");
+  s.appendChild(l);
+}
+
+function redCurve(s, pts, endArrow) {
+  if (endArrow) {
+    const id = mkArrowMarker(s);
+    const pl = document.createElementNS(NS,"polyline");
+    pl.setAttribute("points", pts.map(p=>p[0]+","+p[1]).join(" "));
+    pl.setAttribute("fill","none"); pl.setAttribute("stroke","#C0382B");
+    pl.setAttribute("stroke-width","3"); pl.setAttribute("stroke-linejoin","round");
+    pl.setAttribute("stroke-linecap","round");
+    pl.setAttribute("marker-end","url(#"+id+")");
+    s.appendChild(pl);
+  } else {
+    const pl = document.createElementNS(NS,"polyline");
+    pl.setAttribute("points", pts.map(p=>p[0]+","+p[1]).join(" "));
+    pl.setAttribute("fill","none"); pl.setAttribute("stroke","#C0382B");
+    pl.setAttribute("stroke-width","3"); pl.setAttribute("stroke-linejoin","round");
+    pl.setAttribute("stroke-linecap","round");
+    s.appendChild(pl);
+  }
+}
+
+// Graph 1: steady moderate rise (arrow ~25deg)
+function g1(s) { axes(s); redArrow(s, 24,60, 100,34); }
+
+// Graph 2: steady moderate fall (arrow ~25deg downward)
+function g2(s) { axes(s); redArrow(s, 24,32, 100,58); }
+
+// Graph 3: steep rise (arrow ~65deg upward)
+function g3(s) { axes(s); redArrow(s, 36,64, 72,16); }
+
+// Graph 4: steep fall (arrow ~65deg downward)
+function g4(s) { axes(s); redArrow(s, 32,16, 68,64); }
+
+// Graph 5: smooth rise to a peak, then fall back down
+function g5(s) {
+  axes(s);
+  redCurve(s, [
+    [22,64],[32,54],[44,36],[56,20],[68,30],[78,46],[92,60]
+  ], false);
+}
+
+// Graph 6: starts slow/flat at bottom, curves sharply upward then levels off at top
+function g6(s) {
+  axes(s);
+  redCurve(s, [
+    [22,62],[30,60],[40,54],[50,42],[60,28],[68,18],[76,14],[86,13],[98,13],[108,13]
+  ], true);
+}
+
+// Graph 7: starts mid-level, dips into a trough, then recovers upward (pick up shape)
+function g7(s) {
+  axes(s);
+  redCurve(s, [
+    [22,34],[32,42],[44,54],[56,60],[66,52],[76,40],[86,30],[98,26]
+  ], true);
+}
+
+// Graph 8: rapid tight oscillations (many waves) across the graph
+function g8(s) {
+  axes(s);
+  const pts = [];
+  for (let i = 0; i <= 20; i++) {
+    const x = 22 + i * 4.2;
+    const mid = 44;
+    const amp = 14;
+    const y = mid + (i % 2 === 0 ? -amp : amp);
+    pts.push([x, y]);
+  }
+  redCurve(s, pts, true);
+}
+
+const items = [
+  { num:1, draw:g1, answers:["to rise","to increase"] },
+  { num:2, draw:g2, answers:["to fall","to decrease"] },
+  { num:3, draw:g3, answers:["to skyrocket","to leap to"] },
+  { num:4, draw:g4, answers:["to plunge","to plummet"] },
+  { num:5, draw:g5, answers:["to peak at","to reach a high"] },
+  { num:6, draw:g6, answers:["to level off","to stabilize"] },
+  { num:7, draw:g7, answers:["to pick up","to rebound"] },
+  { num:8, draw:g8, answers:["to oscillate","to fluctuate"] },
+];
+
+const wordBank = [
+  "to skyrocket","to peak at","to leap to","to stabilize",
+  "to oscillate","to increase","to decrease","to pick up",
+  "to rise","to level off","to plunge","to fluctuate",
+  "to reach a high","to plummet","to fall","to rebound"
+].sort(()=>Math.random()-0.5);
+
+function mkSelect() {
+  const sel = document.createElement("select");
+  const blank = document.createElement("option");
+  blank.value=""; blank.textContent="- select a verb -";
+  sel.appendChild(blank);
+  wordBank.forEach(w => {
+    const o = document.createElement("option");
+    o.value=w; o.textContent=w; sel.appendChild(o);
+  });
+  return sel;
+}
+
+const grid = document.getElementById("grid");
+items.forEach(item => {
+  const card = document.createElement("div");
+  card.classList.add("card");
+  card.dataset.answers = JSON.stringify(item.answers);
+
+  const gw = document.createElement("div");
+  gw.classList.add("graph-wrap");
+  const svg = mkSVG();
+  item.draw(svg);
+  gw.appendChild(svg);
+
+  const num = document.createElement("div");
+  num.classList.add("card-num");
+  num.textContent = "Graph " + item.num;
+
+  const selWrap = document.createElement("div");
+  selWrap.classList.add("selects");
+
+  for (let i = 0; i < 2; i++) {
+    const row = document.createElement("div");
+    row.classList.add("sel-row");
+    const lbl = document.createElement("span");
+    lbl.classList.add("sel-label");
+    lbl.textContent = (i+1) + ".";
+    row.appendChild(lbl);
+    row.appendChild(mkSelect());
+    selWrap.appendChild(row);
+  }
+
+  const fb = document.createElement("div");
+  fb.classList.add("feedback");
+  const rv = document.createElement("div");
+  rv.classList.add("reveal");
+
+  card.appendChild(gw);
+  card.appendChild(num);
+  card.appendChild(selWrap);
+  card.appendChild(fb);
+  card.appendChild(rv);
+  grid.appendChild(card);
+});
+
+document.getElementById("btn-check").addEventListener("click",()=>{
+  let correct=0;
+  const cards=document.querySelectorAll(".card");
+  const results=[];
+
+  cards.forEach((card,i)=>{
+    const sels=card.querySelectorAll("select");
+    const fb=card.querySelector(".feedback");
+    const rv=card.querySelector(".reveal");
+    const answers=JSON.parse(card.dataset.answers);
+    const chosen=[sels[0].value, sels[1].value];
+
+    card.classList.remove("correct","wrong");
+    fb.className="feedback"; fb.textContent=""; rv.textContent="";
+
+    // Check both chosen values are in the answers set, and they're different
+    const answerSet = new Set(answers);
+    const ok = chosen[0] && chosen[1] &&
+               chosen[0] !== chosen[1] &&
+               answerSet.has(chosen[0]) &&
+               answerSet.has(chosen[1]);
+
+    results.push({num:i+1, answers, chosen, ok});
+
+    if(ok){
+      correct++;
+      card.classList.add("correct");
+      fb.classList.add("ok"); fb.textContent="Correct";
+    } else {
+      card.classList.add("wrong");
+      fb.classList.add("no");
+      const missing = chosen[0] && chosen[1] ? "Incorrect" : "Incomplete";
+      fb.textContent = missing;
+      rv.textContent = "Answers: " + answers.join(" & ");
+    }
+  });
+
+  const total=items.length;
+  const banner=document.getElementById("banner");
+  banner.style.display="flex";
+  document.getElementById("score").textContent=correct+"/"+total;
+  document.getElementById("bar").style.width=Math.round(correct/total*100)+"%";
+  const dl=document.getElementById("btn-dl");
+  dl.style.display="inline-block";
+  dl._results=results; dl._correct=correct; dl._total=total;
+});
+
+document.getElementById("btn-reset").addEventListener("click",()=>{
+  document.querySelectorAll(".card").forEach(c=>{
+    c.classList.remove("correct","wrong");
+    c.querySelectorAll("select").forEach(s=>s.value="");
+    const fb=c.querySelector(".feedback");
+    fb.className="feedback";fb.textContent="";
+    c.querySelector(".reveal").textContent="";
+  });
+  document.getElementById("banner").style.display="none";
+  document.getElementById("btn-dl").style.display="none";
+});
+
+document.getElementById("btn-dl").addEventListener("click",function(){
+  const now=new Date().toLocaleString();
+  const pct=Math.round(this._correct/this._total*100);
+  const rows=this._results.map(r=>
+    "Graph "+r.num+"\t"+r.answers.join(" & ")+"\t"+
+    (r.chosen[0]||"(blank)")+" & "+(r.chosen[1]||"(blank)")+"\t"+(r.ok?"Correct":"Incorrect")
+  ).join("\n");
+  const txt="Describing Graphs & Trends - Exercise Results\nDate: "+now+"\nScore: "+this._correct+"/"+this._total+" ("+pct+"%)\n\nGraph\tExpected\tYour answers\tResult\n"+rows;
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([txt],{type:"text/plain"}));
+  a.download="graph_trends_results.txt"; a.click();
+});
+</script>
+</body>
+</html>
